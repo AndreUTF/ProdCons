@@ -39,7 +39,7 @@ void GPIOJ_Handler(){
   uint32_t status=0;
   
   status = GPIOIntStatus(GPIO_PORTJ_BASE,true);
-  osSemaphoreAcquire(vazio_id, osWaitForever); // há espaço disponível?
+  osSemaphoreAcquire(vazio_id, 0); // há espaço disponível?
   buffer[index_i%8] = counter; // coloca no buffer
   osSemaphoreRelease(cheio_id); // sinaliza um espaço a menos
   index_i++; // incrementa índice de colocação no buffer

@@ -1,6 +1,6 @@
 ###############################################################################
 #
-# IAR ELF Linker V9.10.2.313/W64 for ARM                  19/Jul/2021  20:13:51
+# IAR ELF Linker V9.10.2.313/W64 for ARM                  19/Jul/2021  22:41:56
 # Copyright 2007-2021 IAR Systems AB.
 #
 #    Output file  =
@@ -407,7 +407,7 @@ GPIOIntEnable                0x2191     0x6  Code  Gb  gpio.o [4]
 GPIOIntRegisterPin           0x21af    0x16  Code  Gb  gpio.o [4]
 GPIOIntStatus                0x2197    0x10  Code  Gb  gpio.o [4]
 GPIOIntTypeSet               0x2043    0x4c  Code  Gb  gpio.o [4]
-GPIOJ_Handler                0x277b    0x50  Code  Gb  prodcons.o [1]
+GPIOJ_Handler                0x277b    0x4e  Code  Gb  prodcons.o [1]
 GPIOPadConfigSet             0x208f   0x102  Code  Gb  gpio.o [4]
 GPIOPinTypeGPIOInput         0x21d9    0x14  Code  Gb  gpio.o [4]
 GPIOPinTypeGPIOOutput        0x21ed     0xa  Code  Gb  gpio.o [4]
@@ -478,8 +478,8 @@ g_pui32EnRegs                0x22b4    0x14  Data  Lc  interrupt.o [4]
 g_pui32VCOFrequencies        0x1c74     0x8  Data  Lc  sysctl.o [4]
 g_pui32Xtals                 0x2a60    0x6c  Data  Lc  sysctl.o [4]
 g_sXTALtoMEMTIM              0x2bb4    0x30  Data  Lc  sysctl.o [4]
-interruptInit                0x27cb    0x4a  Code  Gb  prodcons.o [1]
-main                         0x2815    0x4c  Code  Gb  prodcons.o [1]
+interruptInit                0x27c9    0x4a  Code  Gb  prodcons.o [1]
+main                         0x2813    0x4c  Code  Gb  prodcons.o [1]
 osDelay                      0x2899    0x38  Code  Gb  rtx_delay.o [2]
 osKernelGetState             0x1e75    0x40  Code  Gb  rtx_kernel.o [2]
 osKernelInitialize           0x1e3d    0x38  Code  Gb  rtx_kernel.o [2]
