@@ -1,21 +1,32 @@
-#include <stdint.h>
-#include <stdbool.h>
 #include "system_tm4c1294.h" // CMSIS-Core
 #include "driverleds.h" // device drivers
 #include "cmsis_os2.h" // CMSIS-RTOS
-#include "inc/hw_memmap.h"
-#include "driverlib/gpio.h"
-#include "driverlib/sysctl.h"
-#include "driverlib/systick.h"
-#include "driverlib/pin_map.h"
-#include "driverlib/interrupt.h"
 
 #define BUFFER_SIZE 8
 
-uint8_t counter;
-osThreadId_t consumidor_id;
+osThreadId_t produtor_id, consumidor_id;
 osSemaphoreId_t vazio_id, cheio_id;
+osMessageQueueId_t message_id;
 uint8_t buffer[BUFFER_SIZE];
+int count, foo=0;
+/*
+void produtor(void *arg){
+  uint8_t index_i = 0, count = 0;
+  
+  while(1){
+    osSemaphoreAcquire(vazio_id, osWaitForever); // há espaço disponível?
+    buffer[index_i] = count; // coloca no buffer
+    osSemaphoreRelease(cheio_id); // sinaliza um espaço a menos
+    
+    index_i++; // incrementa índice de colocação no buffer
+    if(index_i >= BUFFER_SIZE)
+      index_i = 0;
+    
+    count++;
+    count &= 0x0F; // produz nova informação
+    osDelay(500);
+  } // while
+} // produtor
 
 void consumidor(void *arg){
   uint8_t index_o = 0, state;
@@ -30,49 +41,74 @@ void consumidor(void *arg){
       index_o = 0;
     
     LEDWrite(LED4 | LED3 | LED2 | LED1, state); // apresenta informação consumida
-    osDelay(100);
+    osDelay(500);
   } // while
 } // consumidor
+*/
+void produtor(void *arg){
+  uint8_t index_i = 0;
+  //uint16_t count = 0
+  while(1){
+    //osSemaphoreAcquire(vazio_id, osWaitForever); // há espaço disponível?
+    //buffer[index_i] = count; // coloca no buffer
+    
+    osMessageQueuePut(message_id, &count, NULL, osWaitForever);
+    //osSemaphoreRelease(cheio_id); // sinaliza um espaço a menos
+    
+    index_i++; // incrementa índice de colocação no buffer
+    if(index_i >= BUFFER_SIZE)
+      index_i = 0;
+    
+    count++;
+    count &= 0x0F; // produz nova informação
+    osDelay(500);
+    osThreadYield();
+  } // while
+} // produtor
 
-void GPIOJ_Handler(){
-  uint8_t index_i = counter;
-  uint32_t status=0;
+void consumidor(void *arg){
+  uint8_t index_o = 0, state;
   
-  status = GPIOIntStatus(GPIO_PORTJ_BASE,true);
-  osSemaphoreAcquire(vazio_id, 0); // há espaço disponível?
-  buffer[index_i%8] = counter; // coloca no buffer
-  osSemaphoreRelease(cheio_id); // sinaliza um espaço a menos
-  index_i++; // incrementa índice de colocação no buffer
-  if(index_i >= BUFFER_SIZE){
-    index_i = 0;
-  }
-  counter++;
-  counter &= 0x0F; // produz nova informação
-  GPIOIntClear(GPIO_PORTJ_BASE,status);
-  osDelay(50);
-}
-
-
-
-void interruptInit(){
-  SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOJ); // Habilita GPIO J (push-button SW1 = PJ0)
-  while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOJ)); // Aguarda final da habilitação
-  GPIOPinTypeGPIOInput(GPIO_PORTJ_BASE, GPIO_PIN_0); // push-buttons SW1 e SW2 como entrada
-  GPIOPadConfigSet(GPIO_PORTJ_BASE, GPIO_PIN_0, GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPU);
-  GPIOIntTypeSet(GPIO_PORTJ_BASE,GPIO_PIN_0,GPIO_FALLING_EDGE);
-  GPIOIntRegisterPin(GPIO_PORTJ_BASE, 0 ,GPIOJ_Handler);
-  GPIOIntEnable(GPIO_PORTJ_BASE, GPIO_INT_PIN_0);
-}
-
+  while(1){
+    //osSemaphoreAcquire(cheio_id, osWaitForever); // há dado disponível?
+    //state = buffer[index_o]; // retira do buffer
+    state = osMessageQueueGet(message_id, &count, NULL, osWaitForever);
+    //osSemaphoreRelease(vazio_id); // sinaliza um espaço a mais
+    
+    if (state == osOK) {
+      index_o++;
+      if(index_o >= BUFFER_SIZE) // incrementa índice de retirada do buffer
+      {
+        index_o = 0;
+      }
+      LEDWrite(LED4 | LED3 | LED2 | LED1, count); // apresenta informação consumida
+      osDelay(500);
+    }
+    else if(state == osErrorTimeout){
+      LEDOn(LED1);
+    }
+    else if(state == osErrorResource){
+      LEDOn(LED2);
+    }
+    else if(state == osErrorParameter){
+      LEDOn(LED3);
+    }
+    
+  } // while
+} // consumidor
 void main(void){
   SystemInit();
-  interruptInit();
   LEDInit(LED4 | LED3 | LED2 | LED1);
+
   osKernelInitialize();
+
+  produtor_id = osThreadNew(produtor, NULL, NULL);
   consumidor_id = osThreadNew(consumidor, NULL, NULL);
+
   vazio_id = osSemaphoreNew(BUFFER_SIZE, BUFFER_SIZE, NULL); // espaços disponíveis = BUFFER_SIZE
   cheio_id = osSemaphoreNew(BUFFER_SIZE, 0, NULL); // espaços ocupados = 0
-  counter = 0;
+  count = 0;
+  message_id = osMessageQueueNew(8, sizeof(int), NULL);
   if(osKernelGetState() == osKernelReady)
     osKernelStart();
 
