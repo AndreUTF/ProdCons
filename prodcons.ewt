@@ -1421,13 +1421,19 @@
         </settings>
     </configuration>
     <file>
+        <name>$PROJ_DIR$\..\drivers\driverbuttons.c</name>
+    </file>
+    <file>
+        <name>$PROJ_DIR$\..\drivers\driverbuttons.h</name>
+    </file>
+    <file>
         <name>$PROJ_DIR$\..\drivers\driverleds.c</name>
     </file>
     <file>
         <name>$PROJ_DIR$\..\..\TivaWare_C_Series-2.1.4.178\driverlib\ewarm\Exe\driverlib.a</name>
     </file>
     <file>
-        <name>$PROJ_DIR$\src\prodcons.c</name>
+        <name>$PROJ_DIR$\src\prodcons_entrega5.c</name>
     </file>
     <file>
         <name>$PROJ_DIR$\..\..\CMSIS-5.6.0\CMSIS\RTOS2\RTX\Library\IAR\IDE\CM4F\Exe\RTX_CM.a</name>

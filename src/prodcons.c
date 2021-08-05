@@ -8,7 +8,7 @@ osThreadId_t produtor_id, consumidor_id;
 osSemaphoreId_t vazio_id, cheio_id;
 osMessageQueueId_t message_id;
 uint8_t buffer[BUFFER_SIZE];
-int count, foo=0;
+int count, foo=0, index = 0;
 /*
 void produtor(void *arg){
   uint8_t index_i = 0, count = 0;
@@ -67,7 +67,8 @@ void produtor(void *arg){
 } // produtor
 
 void consumidor(void *arg){
-  uint8_t index_o = 0, state;
+  uint8_t state;
+  //index_o = 0
   
   while(1){
     //osSemaphoreAcquire(cheio_id, osWaitForever); // há dado disponível?
@@ -76,10 +77,10 @@ void consumidor(void *arg){
     //osSemaphoreRelease(vazio_id); // sinaliza um espaço a mais
     
     if (state == osOK) {
-      index_o++;
-      if(index_o >= BUFFER_SIZE) // incrementa índice de retirada do buffer
+      index++;
+      if(index >= BUFFER_SIZE) // incrementa índice de retirada do buffer
       {
-        index_o = 0;
+        index = 0;
       }
       LEDWrite(LED4 | LED3 | LED2 | LED1, count); // apresenta informação consumida
       osDelay(500);
