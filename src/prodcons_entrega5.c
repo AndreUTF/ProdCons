@@ -25,7 +25,7 @@ void consumidor(void *arg){
   while(1){
     index_o = index;
     osSemaphoreAcquire(cheio_id, osWaitForever); // há dado disponível?
-    state = buffer[index]; // retira do buffer
+    state = buffer[index_o]; // retira do buffer
     osSemaphoreRelease(vazio_id); // sinaliza um espaço a mais
     
     index_o++;
@@ -33,7 +33,6 @@ void consumidor(void *arg){
       index_o = 0;
     
     LEDWrite(LED4 | LED3 | LED2 | LED1, state); // apresenta informação consumida
-    osDelay(100);
   } // while
 /*
   uint8_t state;
